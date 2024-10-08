@@ -235,7 +235,6 @@ def main():
     score = Score()
     clock = pg.time.Clock()
     tmr = Timer()
-    #beam = None
     beams = []
     explosions = []
     while True:
