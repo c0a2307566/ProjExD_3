@@ -154,7 +154,7 @@ class Score():
     def __init__(self):
         """
         文字のフォント・色を設定
-        スコアを初期値(0)を設定
+        スコアの初期値(0)を設定
         Surfaceの生成、中心座標を設定
         """
         self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
@@ -162,14 +162,14 @@ class Score():
         self.score = 0
         self.img = self.fonto.render(f"スコア：{self.score}", 0, self.color)
         self.rct = self.img.get_rect()
-        self.rct.center = 100, HEIGHT - 50
+        self.rct.center = 100, HEIGHT - 50  # 表示位置を設定
     
     def update(self, screen: pg.Surface):
         """
         引数 screen：画面Surface
-        Surfaceの生成して貼り付ける
+        Surfaceを生成して貼り付ける
         """
-        self.img = self.fonto.render(f"スコア：{self.score}", 0, self.color)
+        self.img = self.fonto.render(f"スコア：{self.score}", 0, self.color)  # スコアを更新したものでSurfaceを生成
         screen.blit(self.img, self.rct) 
 
 
@@ -183,19 +183,47 @@ class Explosion():
         座標を入手して中心座標を爆弾の位置に設定
         爆発時間を設定
         """
+        # 爆発のイメージとそれを上下反転させたものをリストにする
         self.imgs = [pg.image.load(f"fig/explosion.gif"), pg.transform.flip(pg.image.load(f"fig/explosion.gif"), True, True)]
-        self.rcts = [self.imgs[0].get_rect(), self.imgs[1].get_rect()]
-        self.rcts[0].center = bomb.rct.center
+        self.rcts = [self.imgs[0].get_rect(), self.imgs[1].get_rect()]  # 座標の入手
+        self.rcts[0].center = bomb.rct.center  # 座標を設定
         self.rcts[1].center = bomb.rct.center
         self.life = 10
 
     def update(self, screen: pg.Surface):
         self.life -= 1
         if self.life>=0:
+            # 交互に表示されるように設定
             if self.life%2==0:
                 screen.blit(self.imgs[0], self.rcts[0])
             elif self.life%2==1:
                 screen.blit(self.imgs[1], self.rcts[1])
+
+
+class Timer():
+    """
+    時間表示に関するクラス
+    """
+    def __init__(self):
+        """
+        文字のフォント・色を設定
+        時間の初期値(0)を設定
+        Surfaceの生成、中心座標を設定
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.color = (255, 0, 0)
+        self.tmr = 0
+        self.img = self.fonto.render(f"時間：{self.tmr//50}", 0, self.color)
+        self.rct = self.img.get_rect()
+        self.rct.center = 100, 50
+    
+    def update(self, screen: pg.Surface):
+        """
+        引数 screen：画面Surface
+        Surfaceを生成して貼り付ける
+        """
+        self.img = self.fonto.render(f"時間：{self.tmr//50}", 0, self.color)  # スコアを更新したものでSurfaceを生成
+        screen.blit(self.img, self.rct) 
 
 
 def main():
@@ -206,7 +234,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     score = Score()
     clock = pg.time.Clock()
-    tmr = 0
+    tmr = Timer()
     #beam = None
     beams = []
     explosions = []
@@ -258,8 +286,9 @@ def main():
         score.update(screen)
         for explosion in explosions:
             explosion.update(screen)
+        tmr.update(screen)
         pg.display.update()
-        tmr += 1
+        tmr.tmr += 1
         clock.tick(50)
 
 
