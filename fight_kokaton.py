@@ -169,6 +169,31 @@ class Score():
         screen.blit(self.img, self.rct) 
 
 
+class Explosion():
+    """
+    爆発表示に関するクラス
+    """
+    def __init__(self, bomb: "Bomb"):
+        """
+        爆発のイメージとそれを上下反転させたものをリストにする
+        座標を入手して中心座標を爆弾の位置に設定
+        爆発時間を設定
+        """
+        self.imgs = [pg.image.load(f"fig/explosion.gif"), pg.transform.flip(pg.image.load(f"fig/explosion.gif"), True, True)]
+        self.rcts = [self.imgs[0].get_rect(), self.imgs[1].get_rect()]
+        self.rcts[0].center = bomb.rct.center
+        self.rcts[1].center = bomb.rct.center
+        self.life = 10
+
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        if self.life>=0:
+            if self.life%2==0:
+                screen.blit(self.imgs[0], self.rcts[0])
+            elif self.life%2==1:
+                screen.blit(self.imgs[1], self.rcts[1])
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -180,6 +205,7 @@ def main():
     tmr = 0
     #beam = None
     beams = []
+    explosions = []
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -208,9 +234,11 @@ def main():
                         beams[k], bombs[j] =None, None
                         bird.change_img(6, screen)
                         score.score += 1  # スコアプラス１
+                        explosions.append(Explosion(bomb))
                         pg.display.update()
         bombs = [bomb for bomb in bombs if bomb is not None]
         beams = [beam for beam in beams if beam is not None]
+        explosions = [explosion for explosion in explosions if explosion.life > 0]
 
         for m, beam in enumerate(beams):
             c_b=check_bound(beam.rct)
@@ -224,6 +252,8 @@ def main():
         for bomb in bombs:   
             bomb.update(screen)
         score.update(screen)
+        for explosion in explosions:
+            explosion.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
